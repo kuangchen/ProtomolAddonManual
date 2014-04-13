@@ -1,0 +1,52 @@
+\begin{section} {Basic Usage}
+Either through GUI interface or console, a user defines a simulation configuration file that instructs \textsc{ProtoMol} about simulation initial conditions, integrator, outputs, and other properties of simulation. The configuration file consists of entries in the format of ``keyword value'' pair. The most important part of the configuration file is the declaration of integrators and forces, which have their special syntax. 
+
+An example input file is presented below, with the meaning of each keyword given in the comment line. To see a full list of keywords, please refer to Ref.
+\begin{lstlisting}[frame=single]
+# Number of steps in simulation
+numsteps 100000000
+firststep 0
+
+# Random Number seed
+seed 11
+temperature 1e4
+
+# Simulation cell size
+cellsize 5000000
+
+# Boundary Conditions
+boundaryConditions vacuum
+
+# Cell Manager
+cellManager Cubic
+exclude none
+
+# Initial position and velocitiy definition
+posfile ion_neutral_cooling_ini_pos_32.xyz
+psffile ion_neutral_cooling_32.psf
+
+# Par file definition
+parfile ion_neutral_cooling.par
+
+# Output Setting
+outputfreq 10000
+IonSnapshot ss.lua
+
+# Integrator Setting
+Integrator {
+  # 0th level integrator
+  level 0 LeapfrogBufferGas {
+    timestep 1e8
+    filename buffer_gas.lua	
+        
+    # Add Coulomb force between ions
+    force Coulomb 
+    -algorithm NonbondedSimpleFull
+        
+    # Add Linear Quadrupole Trap force
+    force LQT 
+    -lqt_filename trap.lua
+  }
+}
+\end{lstlisting}
+\end{section}

@@ -1,0 +1,108 @@
+\begin{subsection} {Ion Snapshot}
+  \begin{subsubsection} { Terminology: Snapshot and Frame }
+    A user might want to record each ion's position and velocity at various times in the simulation. Let's call these information \emph{snapshots}. Unlike what it litarally sounds, a snapshot couldeither include ion's instaneous positions and velocities information at a single time step, called \emph{frame}, or a consecutive series of frames.
+    For my implementation of ion snapshots, every snapshot contains same number of frames. So to specify how ion snapshots should be stored, a user need to provide the start time $t_i$ for $i^{th}$ snapshot with $i=0, 1, ... N_s$ and number of frames $N_{f}$ in each snapshot.
+  \end{subsubsection}
+
+
+  \begin{subsubsection} {Syntax}
+    The statement to instruct \textsc{ProtoMol} to write snapshots to files on disk is
+    \begin{lstlisting}[emph=IonSnapshot]
+      IonSnapshot filename\end{lstlisting}
+    where \textbf{IonSnapshot} points to a lua file that defines these snapshots. An example snapshot definition file is presented below,
+    \begin{lstlisting}[language=LUA]{Example file of snapshot definition}
+      start_time = {}
+
+      for i=1, 50 do
+        start_time[i] = (i-1) * 2e-2
+      end
+
+      ss = {
+        num_frame = 250, 
+        start = start_time 
+      }
+
+      dir = ./\end{lstlisting}
+    which should always declare a table variable \emph{ss}, with the fields explained in Tab. 
+    \begin{table}[h!]
+      \centering
+      \begin{tabular}{l  l  l  p{7cm} } \toprule
+        Field & Type &  Unit & Meaning\\ \midrule
+        num\_frame & integer & 1 & $N_f$, if set to -1, then $N_f$ set to number of steps  in the longest secular periods in $x,y,z$ three directions \\ 
+        start & table & sec & $t_i$, i.e. the time of the first frame \\
+        dir & string & N/A & The name of directory where snapshot files are stored\\
+        \bottomrule
+      \end{tabular}
+      \caption{Snapshot Definition}
+      \label{tab:ion_snapshot_def}
+    \end{table}
+  \end{subsubsection}
+
+\begin{subsubsection} {Output Directory Structure}
+All the snapshot files are stored under the same directory, specified by the \textbf{dir} keywords in the definition file. They are named by the pattern snapshot\_$i$.hd5, where $i$ ranges from $0$ to $N_s-1$.
+\tikzstyle{every node}=[draw=black,thick,anchor=west]
+\tikzstyle{selected}=[draw=red,fill=red!30]
+\tikzstyle{optional}=[dashed,fill=gray!50]
+\begin{tikzpicture}[%
+  grow via three points={one child at (0.5,-0.7) and
+  two children at (0.5,-0.7) and (0.5,-1.4)},
+  edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+  \node {dir}
+    child { node {snapshot\_$0$.hd5} }
+    child { node {snapshot\_$1$.hd5} }
+    child { node {...} }
+    child { node {snapshot\_$(N_s-1)$.hd5} };
+\end{tikzpicture}
+\end{subsubsection}
+
+
+\begin{subsubsection} {Snapshot File Structure}
+The snapshot files are stored in HDF5 format, for its compact size and support by major programming languages, including C/C++/Python/Matlab. For an overview of HDF5 file, please visit its official website at \url{http://www.hdfgroup.org/HDF5/}.
+
+Every HDF5 file has a hierachical data structure, very similar to the file system structures in an operating system. In addition to $N_f$ consecutive frames, a \textit{config} header is also included which consists of auxillary information intended to make the snapshot file self-inclusive.
+\tikzstyle{every node}=[draw=black,thick,anchor=west]
+\tikzstyle{selected}=[draw=red,fill=red!30]
+\tikzstyle{optional}=[dashed,fill=gray!50]
+\begin{tikzpicture}[%
+  grow via three points={one child at (0.5,-0.7) and
+  two children at (0.5,-0.7) and (0.5,-1.4)},
+  edge from parent path={(\tikzparentnode.south) |- (\tikzchildnode.west)}]
+  \node {/}
+    child { node {config} 
+      child { node {start} }
+      child { node {fps} }
+      child { node {numFrame} }
+      child { node {numAtom} }
+      child { node {numFrameperMM} }
+    }
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}	
+    child { node {frame0} 
+      child {node {$x_1, y_1, z_1, v_{x,1}, v_{y,1}, v_{z,1}$} } 
+      child {node {$x_2, y_2, z_2, v_{x,2}, v_{y,2}, v_{z,2}$} } 
+      child {node {...} } 
+      child {node {$x_n, y_n, z_n, v_{x,n}, v_{y,n}, v_{z,n}$} }
+    }
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}			
+    child { node {frame1} 
+      child {node {$x_1, y_1, z_1, v_{x,1}, v_{y,1}, v_{z,1}$} } 
+      child {node {$x_2, y_2, z_2, v_{x,2}, v_{y,2}, v_{z,2}$} } 
+      child {node {...} } 
+      child {node {$x_n, y_n, z_n, v_{x,n}, v_{y,n}, v_{z,n}$} }
+    }
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}				
+    child [missing] {}			
+    child { node {frame2} }
+    child { node {...} }
+    child { node {frameN} };
+\end{tikzpicture}
+\end{subsubsection}
+\end{subsection}

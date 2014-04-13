@@ -1,0 +1,22 @@
+\begin{section} {Compiling \textsc{ProtoMol}}
+The compilation of original \textsc{ProtoMol} source code do not require any additional external programming libraries. The modified version however, requires the following libraries, to be installed first. 
+\begin{itemize}{}{}
+\item Lua5.2
+\item HDF5
+\end{itemize}
+On Ubuntu/Linux systems, these packages can be installed by \textsc{apt-tools}. On Windows, these packages can be found at \url{http://code.google.com/p/luaforwindows/}, and \url{http://www.hdfgroup.org/HDF5/release/obtain5.html}. As for the compiler, because some new features introduced in C++11 are used, a compatible C++ compiler should be used. The compilation process have been simplified by \textsc{CMake} tool. On Linux machine, installation is accomplished by the following commands, 
+\lstset{language=bash} 
+\begin{lstlisting}
+# Remove previous CMakeCache
+rm -rf CMakeCache.txt CMakeFiles
+
+# Instructs ProtoMol to have lapack built
+cmake -DBUILD_LAPACK=ON -DBUILD_LAPACK_TYPE=lapack 
+
+# Tell cmake to generate Makefiles
+cmake .
+
+# Install ProtoMol into system folder, as super user
+sudo make install
+\end{lstlisting}
+\end{section}
